@@ -1301,7 +1301,14 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             kwargs.setdefault('unqualified_typehints', True)
 
         sigs = []
-        if (self.analyzer and
+        
+        # Workaround for https://github.com/sphinx-doc/sphinx/issues/10436
+        # There may be a better way do do this (after all, ClassDocumenter
+        # already does this correctly somehow), but this works for now.
+        sig = super().format_signature(**kwargs)
+        signature_explicitly_given = self.args is not None
+        
+        if not signature_explicitly_given and (self.analyzer and
                 '.'.join(self.objpath) in self.analyzer.overloads and
                 self.config.autodoc_typehints != 'none'):
             # Use signatures for overloaded functions instead of the implementation function.
@@ -2186,7 +2193,14 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             kwargs.setdefault('unqualified_typehints', True)
 
         sigs = []
-        if (self.analyzer and
+
+        # Workaround for https://github.com/sphinx-doc/sphinx/issues/10436
+        # There may be a better way do do this (after all, ClassDocumenter
+        # already does this correctly somehow), but this works for now.
+        sig = super().format_signature(**kwargs)
+        signature_explicitly_given = self.args is not None
+        
+        if not signature_explicitly_given and (self.analyzer and
                 '.'.join(self.objpath) in self.analyzer.overloads and
                 self.config.autodoc_typehints != 'none'):
             # Use signatures for overloaded methods instead of the implementation method.
