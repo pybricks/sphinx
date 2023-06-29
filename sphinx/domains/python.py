@@ -649,8 +649,7 @@ class PyFunction(PyObject):
 
     def get_signature_prefix(self, sig: str) -> List[nodes.Node]:
         if 'async' in self.options:
-            return [addnodes.desc_sig_keyword('', 'async'),
-                    addnodes.desc_sig_space()]
+            return [type_to_xref('await', self.env, suppress_prefix=True)]
         else:
             return []
 
@@ -789,8 +788,7 @@ class PyMethod(PyObject):
             prefix.append(nodes.Text('abstract'))
             prefix.append(addnodes.desc_sig_space())
         if 'async' in self.options:
-            prefix.append(nodes.Text('async'))
-            prefix.append(addnodes.desc_sig_space())
+            prefix.append(type_to_xref('await', self.env, suppress_prefix=True))
         if 'classmethod' in self.options:
             prefix.append(nodes.Text('classmethod'))
             prefix.append(addnodes.desc_sig_space())

@@ -1293,7 +1293,13 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         sourcename = self.get_sourcename()
         super().add_directive_header(sig)
 
-        if inspect.iscoroutinefunction(self.object) or inspect.isasyncgenfunction(self.object):
+        try:
+            return_type = inspect.getannotations(self.object)['return']
+            maybe_awaitable = 'MaybeAwaitable' in str(return_type)
+        except KeyError:
+            maybe_awaitable = False
+
+        if inspect.iscoroutinefunction(self.object) or inspect.isasyncgenfunction(self.object) or maybe_awaitable:
             self.add_line('   :async:', sourcename)
 
     def format_signature(self, **kwargs: Any) -> str:
@@ -2172,11 +2178,17 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
 
+        try:
+            return_type = inspect.getannotations(self.object)['return']
+            maybe_awaitable = 'MaybeAwaitable' in str(return_type)
+        except KeyError:
+            maybe_awaitable = False
+
         sourcename = self.get_sourcename()
         obj = self.parent.__dict__.get(self.object_name, self.object)
         if inspect.isabstractmethod(obj):
             self.add_line('   :abstractmethod:', sourcename)
-        if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
+        if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj) or maybe_awaitable:
             self.add_line('   :async:', sourcename)
         if inspect.isclassmethod(obj):
             self.add_line('   :classmethod:', sourcename)
